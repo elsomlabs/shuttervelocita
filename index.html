@@ -58,7 +58,7 @@ header nav{display:flex;gap:40px}header nav a{color:inherit;text-decoration:none
 .hair{height:1px;background:rgba(238,238,232,.12)}
 /* work */
 #w-ghost{left:0;top:-100px;width:1920px;height:1280px;opacity:.07;filter:blur(60px)}
-#w-slit{left:0;top:150px;width:1920px;height:680px;overflow:hidden}
+#w-slit{left:0;top:108px;width:1920px;height:740px;overflow:hidden}
 #w-slit .img{position:absolute;left:0;top:-400px;width:1920px;height:1280px}
 .edge{background:rgba(238,238,232,.35)}
 #w-ig{position:absolute;left:0;width:1920px;top:82px;transform:translateY(-50%);text-align:center;font:300 34px/1 Montserrat,sans-serif;letter-spacing:.32em;text-transform:lowercase;color:rgba(238,238,232,.85);text-decoration:none;transition:color .3s}
@@ -370,7 +370,7 @@ function secLayout(){const f=innerWidth/1920;for(const sec of document.querySele
 for(const a of document.querySelectorAll('.arch'))a.addEventListener('mouseenter',()=>{for(const b of document.querySelectorAll('.arch'))b.classList.toggle('on',b===a)});
 // work slit opens like a shutter as it enters
 const slit=$('w-slit'),slitImg=slit&&slit.firstElementChild,eT=document.querySelector('#work .edge'),eB=document.querySelectorAll('#work .edge')[1];
-let shut=0,wMode=1;const WF=[1, 1, 0.554, 0.564, 0.893, 0.543, 0.521, 0.586, 0.564, 0.714, 0.457, 0.5, 0.457, 0.457, 0.448, 0.304, 0.586, 0.296, 0.393, 0.479, 0.457, 1, 0.542, 0.484, 0.586, 0.605, 0.524, 0.565],WN=["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
+let shut=0,wMode=1;const WF=[1, 0.5, 0.559, 0.571, 0.922, 0.548, 0.524, 0.595, 0.571, 0.738, 0.452, 0.5, 0.452, 0.452, 0.446, 0.267, 0.595, 0.263, 0.381, 0.476, 0.452, 0.5, 0.543, 0.483, 0.595, 0.608, 0.528, 0.567],WN=["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
 function showWork(i){const el=$('w-name'),t0=performance.now();let swapped=false;
  for(const d of document.querySelectorAll('#w-row div')){d.classList.toggle('on',+d.dataset.i===i);if(+d.dataset.i===i){const w=$('w-rowwrap');w.scrollTo({left:Math.max(0,d.offsetLeft-w.clientWidth/2+d.offsetWidth/2),behavior:'smooth'});}}
  document.querySelectorAll('#w-ticks i').forEach((t,k)=>t.classList.toggle('on',k===i-1));el.style.opacity=0;
@@ -380,7 +380,7 @@ for(const d of document.querySelectorAll('#w-row div'))d.addEventListener('click
 $('w-rowwrap').addEventListener('wheel',e=>{const w=e.currentTarget;if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){const m=w.scrollWidth-w.clientWidth;if((e.deltaY>0&&w.scrollLeft<m-1)||(e.deltaY<0&&w.scrollLeft>0)){e.preventDefault();w.scrollLeft+=e.deltaY;}}},{passive:false});
 {let dn=null;const w=$('w-rowwrap');w.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')dn={x:e.clientX,l:w.scrollLeft,m:0};});addEventListener('pointermove',e=>{if(dn){dn.m=Math.max(dn.m,Math.abs(e.clientX-dn.x));w.scrollLeft=dn.l-(e.clientX-dn.x);}});addEventListener('pointerup',()=>{setTimeout(()=>dn=null,0);});w.addEventListener('click',e=>{if(dn&&dn.m>6){e.stopPropagation();e.preventDefault();}},true);}
 function workOpen(){const r=$('work').getBoundingClientRect(),f=innerWidth/1920,k=ease(clamp(1-(r.top/innerHeight)));
- const h=680*(1-shut),top=490-h/2;slit.style.top=top+'px';slit.style.height=h+'px';if(wMode){slitImg.style.top=(150-top)+'px';slitImg.style.height='680px';}else{slitImg.style.top=(-top-Math.max(r.top,0)/f)+'px';slitImg.style.height=(innerHeight/f)+'px';}eT.style.top=(top-1)+'px';eB.style.top=(top+h)+'px';
+ const h=740*(1-shut),top=478-h/2;slit.style.top=top+'px';slit.style.height=h+'px';if(wMode){slitImg.style.top=(108-top)+'px';slitImg.style.height='740px';}else{slitImg.style.top=(-top-Math.max(r.top,0)/f)+'px';slitImg.style.height=(innerHeight/f)+'px';}eT.style.top=(top-1)+'px';eB.style.top=(top+h)+'px';
  for(const [i,d] of [...document.querySelectorAll('#w-row div')].entries())d.style.transform=`translateY(${(1-clamp(k*1.4-Math.min(i,7)*.05))*60}px)`;
  requestAnimationFrame(workOpen);}
 // cursor
