@@ -35,7 +35,7 @@ html.lenis{height:auto}.lenis.lenis-smooth{scroll-behavior:auto}
 #ig-ring svg{width:100%;height:100%;display:block;overflow:visible;animation:igspin 18s linear infinite}
 #ig-ring text{font:400 13px Montserrat,sans-serif;letter-spacing:.06em;fill:currentColor}
 @keyframes igspin{to{transform:rotate(360deg)}}
-#cue{position:absolute;left:50%;bottom:5.5vh;transform:translateX(-50%);z-index:6;display:flex;flex-direction:column;align-items:center;gap:14px;pointer-events:none;opacity:0;color:#EEEEE8;font:400 11px/1 Montserrat,sans-serif;letter-spacing:.38em;text-transform:uppercase;padding-left:.38em}
+#cue{position:absolute;left:calc(50% - 50vw*.66);top:calc(50% + 100vw*130/1920);transform:translate(-50%,-50%);z-index:6;display:flex;flex-direction:column;align-items:center;gap:14px;pointer-events:none;opacity:0;color:#EEEEE8;font:400 11px/1 Montserrat,sans-serif;letter-spacing:.38em;text-transform:uppercase;padding-left:.38em}
 #cue i{position:relative;display:block;width:1px;height:46px;background:rgba(238,238,232,.18);overflow:hidden}
 #cue i:after{content:"";position:absolute;left:0;top:0;width:1px;height:18px;background:#EEEEE8;animation:cueRun 1.9s cubic-bezier(.6,0,.3,1) infinite}
 @keyframes cueRun{0%{transform:translateY(-18px)}100%{transform:translateY(46px)}}
