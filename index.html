@@ -35,6 +35,10 @@ html.lenis{height:auto}.lenis.lenis-smooth{scroll-behavior:auto}
 #ig-ring svg{width:100%;height:100%;display:block;overflow:visible;animation:igspin 18s linear infinite}
 #ig-ring text{font:400 13px Montserrat,sans-serif;letter-spacing:.06em;fill:currentColor}
 @keyframes igspin{to{transform:rotate(360deg)}}
+#cue{position:absolute;left:50%;bottom:5.5vh;transform:translateX(-50%);z-index:6;display:flex;flex-direction:column;align-items:center;gap:14px;pointer-events:none;opacity:0;color:#EEEEE8;font:400 11px/1 Montserrat,sans-serif;letter-spacing:.38em;text-transform:uppercase;padding-left:.38em}
+#cue i{position:relative;display:block;width:1px;height:46px;background:rgba(238,238,232,.18);overflow:hidden}
+#cue i:after{content:"";position:absolute;left:0;top:0;width:1px;height:18px;background:#EEEEE8;animation:cueRun 1.9s cubic-bezier(.6,0,.3,1) infinite}
+@keyframes cueRun{0%{transform:translateY(-18px)}100%{transform:translateY(46px)}}
 #cv,#iris{position:absolute;inset:0;width:100%;height:100%}
 .vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 55%,transparent 45%,rgba(0,0,0,.65) 100%)}
 #title{position:absolute;left:3vw;right:3vw;bottom:7vh;display:none;justify-content:space-between;font:400 clamp(64px,15.2vw,300px)/.82 "Bebas Neue",sans-serif;letter-spacing:-.005em;pointer-events:none}
@@ -143,6 +147,7 @@ header nav{display:flex;gap:40px}header nav a{color:inherit;text-decoration:none
   <div class="beat" id="b3"><span>Combustion</span></div>
   <div id="title"><span>Shutter</span><span>Velocita</span></div>
   <canvas id="iris"></canvas>
+  <div id="cue">Scroll<i></i></div>
   <a id="ig-ring" href="https://www.instagram.com/shuttervelocita/" target="_blank" rel="noopener" aria-label="@shuttervelocita on Instagram"><svg viewBox="0 0 150 150"><defs><path id="igp" d="M75,75 m-62,0 a62,62 0 1,1 124,0 a62,62 0 1,1 -124,0"/></defs><text><textPath href="#igp" textLength="389" lengthAdjust="spacing">@shuttervelocita · @shuttervelocita ·</textPath></text></svg></a>
  </div>
 </section>
@@ -343,6 +348,7 @@ function render(){
  {const q=clamp((hy-animR)/(S.shutLen*vhh/100)),e1=Math.pow(seg(q,0,.6),2.2),e2=1-Math.pow(1-seg(q,.3,1),2.6),x1=seg(q,0,.6),y2=seg(q,.3,1),vel=Math.max(q<.6?2.2*Math.pow(x1,1.2)/.6*1.15:0,q>.3?2.6*Math.pow(1-y2,1.6)/.7:0),bl=S.whipBlur*Math.min(1,vel/3.7),pn=hero.firstElementChild,wk=$('about'),wt=wk.getBoundingClientRect().top-(parseFloat(wk.dataset.ty)||0);
   if(q>0&&q<1){pn.style.transform=`translateY(${-e1*vhh*1.15}px)`;$('vbHg').setAttribute('stdDeviation','0 '+(bl*(1-.4*e2)).toFixed(1));pn.style.filter=bl>.5?'url(#vbH)':'';}else{pn.style.transform='';pn.style.filter='';}
   if(q>0&&q<1&&wt>-1){const ty=-wt+(1-e2)*vhh;wk.dataset.ty=ty;wk.style.transform=`translateY(${ty}px)`;$('vbWg').setAttribute('stdDeviation','0 '+(bl*(1-e2*.5)).toFixed(1));wk.style.filter=bl>.5?'url(#vbW)':'';}else{wk.dataset.ty=0;wk.style.transform='';wk.style.filter='';}}
+ $('cue').style.opacity=(camIn*(1-seg(p,.002,.03))).toFixed(3);
  beat($('b1'),p,S.b1a,S.b1b);beat($('b2'),p,S.b2a,S.b2b);beat($('b3'),p,S.b3a,S.b3b);
  drawIris(0);
  document.querySelector('#prog i').style.width=(p*100)+'%';
