@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ShutterVelocita</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Geist+Mono:wght@500&family=Geist:wght@100;300;400&family=Montserrat:wght@100;300;400;500&display=swap" rel="stylesheet">
+<style>
+/* VOICE: dark garage at night, quiet until it isn't.
+   IDEA: the photographer walking up to the car with a long lens, then the shutter closing on the shot.
+   PICTURE: one lit GT car, a continuous scroll-driven push-in to its headlight, ending in an aperture iris.
+   COLOUR and TYPE: near-black, off-white, one racing red; Bebas Neue for display, Montserrat for labels, Geist for statements.
+   LAYOUT: pinned full-bleed hero, then the 1920x1080 Figma sections scaled to width. */
+:root{--bg:#060606;--ink:#eeeee8;--red:#e10600}
+*{box-sizing:border-box;margin:0}
+html,body{background:var(--bg);color:var(--ink);font-family:Montserrat,system-ui,sans-serif}
+body{overflow-x:clip;cursor:none}
+a,button{cursor:none}
+html.lenis{height:auto}.lenis.lenis-smooth{scroll-behavior:auto}
+/* preloader */
+#pre{position:fixed;inset:0;z-index:50;background:#000;display:grid;place-items:center;transition:opacity .9s ease .2s}
+#pre.done{opacity:0;pointer-events:none}
+#pre .mark{font:400 22px/1 "Bebas Neue",sans-serif;letter-spacing:.3em;opacity:.8}
+#pre .bar{position:absolute;left:50%;bottom:12vh;width:160px;height:1px;margin-left:-80px;background:rgba(238,238,232,.15)}
+#pre .bar i{display:block;height:100%;width:0;background:var(--ink);transition:width .2s}
+/* hero */
+#hero{position:relative;height:600vh}
+#work{z-index:2;margin-top:-200vh}
+#w-slit .img,#w-ghost{background-image:url(work/w1.jpg?v=2)}
+#w-slit .img{background-position:center 55%}
+.pin{position:sticky;top:0;height:100vh;overflow:hidden;background:#000}
+#ig-ring{position:absolute;left:calc(100vw*48/1920);top:calc(50vh + 100vw*(806 - 540)/1920);width:calc(100vw*150/1920);height:calc(100vw*150/1920);z-index:5;opacity:0;visibility:hidden;color:#EEEEE8;pointer-events:auto}
+#ig-ring svg{width:100%;height:100%;display:block;overflow:visible;animation:igspin 18s linear infinite}
+#ig-ring text{font:400 13px Montserrat,sans-serif;letter-spacing:.06em;fill:currentColor}
+@keyframes igspin{to{transform:rotate(360deg)}}
+#cv,#iris{position:absolute;inset:0;width:100%;height:100%}
+.vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 55%,transparent 45%,rgba(0,0,0,.65) 100%)}
+#title{position:absolute;left:3vw;right:3vw;bottom:7vh;display:none;justify-content:space-between;font:400 clamp(64px,15.2vw,300px)/.82 "Bebas Neue",sans-serif;letter-spacing:-.005em;pointer-events:none}
+#title span{display:inline-block;will-change:transform,filter,opacity}
+.beat{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;font:400 clamp(48px,9vw,170px)/.9 "Bebas Neue",sans-serif;pointer-events:none}
+.beat span{display:inline-block;margin:0 .12em;will-change:filter,opacity,transform}
+.beat small{display:block;margin-top:2.2vh;font:400 13px/1 Montserrat,sans-serif;letter-spacing:.02em;opacity:.6}
+header{position:fixed;left:0;right:0;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:26px 3vw;font-size:13px;mix-blend-mode:difference}
+header .logo{font:400 22px/1 "Bebas Neue",sans-serif;letter-spacing:.04em}
+header nav{display:flex;gap:40px}header nav a{color:inherit;text-decoration:none;opacity:.8}
+#meta{position:absolute;left:3vw;right:3vw;top:50%;display:flex;justify-content:space-between;font:500 12px/1 "Geist Mono",ui-monospace,monospace;letter-spacing:.04em;opacity:.55;pointer-events:none}
+#prog{position:fixed;left:3vw;right:3vw;bottom:24px;height:1px;background:rgba(238,238,232,.14);z-index:20}
+#prog i{display:block;height:100%;width:0;background:var(--ink)}
+#cur{position:fixed;left:0;top:0;width:28px;height:28px;margin:-14px 0 0 -14px;border:1px solid rgba(238,238,232,.7);border-radius:50%;z-index:60;pointer-events:none;transition:width .25s,height .25s,margin .25s,background .25s;mix-blend-mode:difference}
+#cur.big{width:64px;height:64px;margin:-32px 0 0 -32px;background:rgba(238,238,232,.9)}
+@media (hover:none){body,a,button{cursor:auto}#cur{display:none}}
+.sec{position:relative;overflow:hidden;background:var(--bg)}
+.sec .st{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
+.sec .st>*{position:absolute}
+.img{background:url(corner.jpg) center/cover no-repeat}
+.hair{height:1px;background:rgba(238,238,232,.12)}
+/* work */
+#w-ghost{left:0;top:-100px;width:1920px;height:1280px;opacity:.07;filter:blur(60px)}
+#w-slit{left:0;top:150px;width:1920px;height:680px;overflow:hidden}
+#w-slit .img{position:absolute;left:0;top:-400px;width:1920px;height:1280px}
+.edge{background:rgba(238,238,232,.35)}
+#w-ig{position:absolute;left:0;width:1920px;top:82px;transform:translateY(-50%);text-align:center;font:300 34px/1 Montserrat,sans-serif;letter-spacing:.32em;text-transform:lowercase;color:rgba(238,238,232,.85);text-decoration:none;transition:color .3s}
+#w-ig:hover{color:#e10600}
+.whisper{font:100 120px/1.2 Montserrat,sans-serif;letter-spacing:-.04em;color:rgba(238,238,232,.14)}
+#w-ticks i{position:absolute;right:0;height:1px;width:14px;background:rgba(238,238,232,.3)}
+#w-ticks i.on{width:24px;background:var(--red)}
+#w-row{left:523px;top:866px;display:flex;gap:18px}
+#w-name{transition:opacity .25s;white-space:nowrap}
+#w-row div{flex:none;width:177px;height:118px;opacity:.88;filter:grayscale(1) brightness(.92) contrast(1.1);background-size:cover;background-position:center;background-repeat:no-repeat;cursor:pointer;transition:filter .3s,opacity .3s}
+#w-row div:hover,#w-row div.on{filter:none;opacity:1}
+#w-row div.on{outline:1px solid rgba(238,238,232,.7);outline-offset:4px}
+.reddot{width:6px;height:6px;border-radius:50%;background:var(--red)}
+/* about */
+#a-slit{left:1128px;top:108px;width:128px;height:872px;overflow:hidden}
+#a-slit .img{position:absolute;left:-368px;top:-38px;width:1400px;height:933px}
+.statement{font:300 66px/1.04 Geist,sans-serif;letter-spacing:-.03em;width:960px}
+.statement span{opacity:.4}
+.body{font:400 14px/1.65 Montserrat,sans-serif;opacity:.55;width:520px}
+.spec{width:532px}
+.spec div{display:flex;justify-content:space-between;align-items:center;height:58px;border-top:1px solid rgba(238,238,232,.12)}
+.spec div:last-child{border-bottom:1px solid rgba(238,238,232,.12)}
+.spec dt{font:400 12px Montserrat,sans-serif;opacity:.4}.spec dd{font:400 14px Montserrat,sans-serif;margin:0}
+.small{font:400 13px Montserrat,sans-serif;opacity:.5}
+/* inspiration */
+.arch .ph{cursor:zoom-in}
+#lb{position:fixed;inset:0;z-index:60;visibility:hidden;background:rgba(6,6,6,.97);cursor:zoom-out}
+#lb img{position:absolute;object-fit:cover;display:block}
+#lb .cap{position:absolute;left:48px;bottom:36px;font:400 15px Montserrat,sans-serif;letter-spacing:.02em;color:var(--ink);opacity:0}
+#lb .cap b{font:400 26px/1.3 Geist,sans-serif;letter-spacing:-.03em;display:block;margin-bottom:6px}
+.ins-title{font:300 84px/1.3 Geist,sans-serif;letter-spacing:-.04em}
+.arch{width:346px;height:700px}
+.arch .rule{position:absolute;left:0;top:0;width:346px;height:1px;background:rgba(238,238,232,.2)}
+.arch.on .rule{background:var(--red)}
+.arch .yr{position:absolute;left:-6px;top:18px;font:100 128px/.85 Geist,sans-serif;letter-spacing:-.06em;opacity:.55;transition:opacity .3s}
+.arch .ph{position:absolute;left:0;top:150px;width:346px;height:300px;background:#131313;border:1px solid rgba(238,238,232,.12)}
+.arch .ph:before,.arch .ph:after{content:none;position:absolute;left:50%;top:50%;background:rgba(238,238,232,.3)}
+.arch .ph:before{width:28px;height:1px;margin-left:-14px}.arch .ph:after{width:1px;height:28px;margin-top:-14px}
+.arch .ph span{position:absolute;left:12px;bottom:12px;font:400 11px Montserrat,sans-serif;opacity:.4}
+.arch .nm{position:absolute;left:0;top:474px;font:400 26px/1.3 Geist,sans-serif;letter-spacing:-.03em;opacity:.75;transition:opacity .3s}
+.arch .mt{position:absolute;left:0;top:513px;font:400 15px Montserrat,sans-serif;letter-spacing:.02em;opacity:.45}
+.arch .nt{position:absolute;left:0;top:540px;width:336px;font:400 13px/1.55 Montserrat,sans-serif;opacity:.4;transition:opacity .3s}
+.arch.on .yr,.arch.on .nm{opacity:1}.arch.on .mt{opacity:.9;color:var(--red)}.arch.on .nt{opacity:.7}
+
+#work .st{clip-path:inset(0)}
+#spanel{position:fixed;left:16px;bottom:16px;z-index:9999;font:400 14px/1.3 "Geist",system-ui,sans-serif;color:#EEEEE8;cursor:auto}
+#spanel *{cursor:auto}
+#sp-tog{background:rgba(20,20,20,.9);color:#EEEEE8;border:1px solid rgba(238,238,232,.22);border-radius:10px;padding:10px 16px;font:inherit;backdrop-filter:blur(8px)}
+#sp-body{display:none;position:absolute;left:0;bottom:52px;width:min(860px,calc(100vw - 32px));max-height:78vh;overflow:auto;background:rgba(12,12,12,.96);border:1px solid rgba(238,238,232,.16);border-radius:14px;padding:18px;backdrop-filter:blur(10px);overscroll-behavior:contain}
+#spanel.open #sp-body{display:block}
+.sp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.sp-card{background:#161616;border:1px solid rgba(238,238,232,.1);border-radius:10px;padding:16px;min-height:92px}
+.sp-l{opacity:.8;margin-bottom:14px}.sp-l b{opacity:1;font-weight:600}
+.sp-card input[type=range]{width:100%;accent-color:#e10600}
+.sp-tg{display:flex;gap:8px}.sp-tg button{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(238,238,232,.15);background:#0c0c0c;color:#EEEEE8;font:inherit}
+.sp-tg button.act{background:#e10600;border-color:#e10600}
+#sp-adv{margin-top:14px;background:#161616;border:1px solid rgba(238,238,232,.1);border-radius:10px;padding:12px 16px}
+#sp-adv summary{opacity:.85}
+#sp-adv h4{margin:14px 0 6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.55}
+#sp-adv label{display:grid;grid-template-columns:1fr 64px;gap:2px 8px;align-items:center;margin:6px 0;font-size:12px}
+#sp-adv label span{grid-column:1/3;opacity:.85}
+#sp-adv input[type=range]{width:100%;accent-color:#e10600}
+#sp-adv input[type=number]{width:64px;background:#000;color:#EEEEE8;border:1px solid rgba(238,238,232,.25);border-radius:6px;padding:3px 5px;font:inherit}
+#sp-pos{opacity:.7;font-size:12px;margin-top:10px}#sp-pos b{font-family:"Geist Mono",monospace}
+.sp-bar{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.sp-bar button{background:transparent;color:#EEEEE8;border:1px solid rgba(238,238,232,.3);border-radius:8px;padding:9px 14px;font:inherit}
+</style>
+</head>
+<body>
+<div id="pre"><div class="mark">Shutter Velocita</div><div class="bar"><i id="preBar"></i></div></div>
+<div id="cur"></div>
+<div id="lb"><img alt=""><div class="cap"></div></div>
+<svg width="0" height="0" style="position:absolute"><filter id="vbH" x="0" y="-20%" width="100%" height="140%"><feGaussianBlur id="vbHg" stdDeviation="0 0"/></filter><filter id="vbW" x="0" y="-20%" width="100%" height="140%"><feGaussianBlur id="vbWg" stdDeviation="0 0"/></filter></svg>
+<header><span class="logo">Shutter Velocita</span><nav><a href="#work">Work</a><a href="#about">About</a><a href="#inspiration">Inspiration</a></nav></header>
+<section id="hero">
+ <div class="pin">
+  <canvas id="cv"></canvas>
+  <div class="vig"></div>
+  <div class="beat" id="b1"><span>Camera</span></div>
+  <div class="beat" id="b2"><span>Lens</span></div>
+  <div class="beat" id="b3"><span>Combustion</span></div>
+  <div id="title"><span>Shutter</span><span>Velocita</span></div>
+  <canvas id="iris"></canvas>
+  <a id="ig-ring" href="https://www.instagram.com/shuttervelocita/" target="_blank" rel="noopener" aria-label="@shuttervelocita on Instagram"><svg viewBox="0 0 150 150"><defs><path id="igp" d="M75,75 m-62,0 a62,62 0 1,1 124,0 a62,62 0 1,1 -124,0"/></defs><text><textPath href="#igp" textLength="389" lengthAdjust="spacing">@shuttervelocita · @shuttervelocita ·</textPath></text></svg></a>
+ </div>
+</section>
+<div id="prog"><i></i></div>
+<section id="work" class="sec"><div class="st">
+ <div id="w-ghost" class="img"></div>
+ <a id="w-ig" href="https://www.instagram.com/shuttervelocita/" target="_blank" rel="noopener">@shuttervelocita</a>
+ <div id="w-slit"><div class="img"></div></div>
+ <div class="edge" style="left:0;top:299px;width:1920px;height:1px"></div>
+ <div class="edge" style="left:0;top:800px;width:1920px;height:1px"></div>
+ <div class="whisper" id="w-name" style="left:42px;top:864px;font-size:120px">line</div>
+ <div id="w-ticks" style="left:1848px;top:34px;width:24px;height:96px"><i class="on" style="top:0px"></i><i style="top:16px"></i><i style="top:32px"></i><i style="top:48px"></i><i style="top:64px"></i><i style="top:80px"></i><i style="top:96px"></i></div>
+ <div id="w-row"><div data-i="1" class="on" style="background-image:url(work/t1.jpg?v=2)"></div><div data-i="2" style="background-image:url(work/t2.jpg)"></div><div data-i="3" style="background-image:url(work/t3.jpg)"></div><div data-i="4" style="background-image:url(work/t4.jpg)"></div><div data-i="5" style="background-image:url(work/t5.jpg)"></div><div data-i="6" style="background-image:url(work/t6.jpg)"></div><div data-i="7" style="background-image:url(work/t7.jpg)"></div></div>
+ <div class="reddot" style="left:829px;top:1037px"></div>
+</div></section>
+<section id="about" class="sec"><div class="st">
+ <p class="statement" style="left:45px;top:150px"><span>I don’t photograph cars. I photograph the half-second </span>where grip runs out.</p>
+ <p class="body" style="left:48px;top:414px">Trackside, pit lane and paddock. Shot fast, edited slow. Every frame on this site is a moment that lasted less than the time it takes to read this line.</p>
+ <div class="whisper" style="left:38px;top:740px;font-size:220px;color:rgba(238,238,232,.12)">grip</div>
+ <div id="a-slit"><div class="img"></div></div>
+ <div class="edge" style="left:1127px;top:108px;width:1px;height:872px"></div>
+ <div class="edge" style="left:1256px;top:108px;width:1px;height:872px"></div>
+ <dl class="spec" style="left:1340px;top:150px;margin:0"><div><dt>Based in</dt><dd>Eastbourne, UK</dd></div><div><dt>Shooting since</dt><dd>2014</dd></div><div><dt>Disciplines</dt><dd>Race / Paddock / Night</dd></div><div><dt>Body</dt><dd>[Camera]</dd></div><div><dt>Glass</dt><dd>[Lenses]</dd></div><div><dt>Favourite shutter</dt><dd>1/2000</dd></div></dl>
+ <div class="small" style="right:48px;top:604px">@shuttervelocita</div>
+ <div class="hair" style="left:48px;top:1014px;width:1824px"></div>
+</div></section>
+<section id="inspiration" class="sec"><div class="st">
+ <h2 class="ins-title" style="left:45px;top:136px;margin:0">Those who shot first.</h2>
+ <div class="arch on" style="left:48px;top:300px"><div class="rule"></div><div class="yr">1993</div><div class="ph" style="background:#131313 url(insp/i1.jpg) center/cover no-repeat"></div><div class="nm">Mark Sutton</div><div class="mt">The Flying Fin</div></div><div class="arch" style="left:418px;top:300px"><div class="rule"></div><div class="yr">2003</div><div class="ph" style="background:#131313 url(insp/i2.jpg) center/cover no-repeat"></div><div class="nm">Stephen Davison</div><div class="mt">Pacemaker</div></div><div class="arch" style="left:787px;top:300px"><div class="rule"></div><div class="yr">2016</div><div class="ph" style="background:#131313 url(insp/i3.jpg) center/cover no-repeat"></div><div class="nm">Jakob Ebrey</div><div class="mt">TF Sport</div></div><div class="arch" style="left:1156px;top:300px"><div class="rule"></div><div class="yr">2022</div><div class="ph" style="background:#131313 url(insp/i4.jpg) center/cover no-repeat"></div><div class="nm">Will Bailey</div><div class="mt">Spa</div></div><div class="arch" style="left:1526px;top:300px"><div class="rule"></div><div class="yr">2024</div><div class="ph" style="background:#131313 url(insp/i5.jpg) center 35%/cover no-repeat"></div><div class="nm">Joe Lansdown</div><div class="mt">GT</div></div>
+ <div class="hair" style="left:48px;top:1014px;width:1824px"></div>
+</div></section>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+{
+const $=id=>document.getElementById(id);
+const cv=$('cv'),ctx=cv.getContext('2d'),iris=$('iris'),ictx=iris.getContext('2d'),hero=$('hero');
+const NK1=96,L2=[0.00221, 0.00262, 0.00247, 0.00256, 0.00239, 0.00231, 0.00241, 0.00239, 0.00261, 0.00316, 0.00243, 0.00251, 0.00243, 0.00297, 0.00248, 0.00262, 0.00251, 0.0026, 0.00256, 0.00247, 0.00257, 0.00231, 0.00241, 0.00245, 0.00246, 0.00243, 0.00224, 0.00222, 0.00245, 0.00242, 0.00245, 0.00266, 0.00252, 0.00257, 0.00213, 0.00222, 0.00222, 0.00297, 0.00276, 0.00252, 0.00329, 0.00259, 0.00309, 0.00327, 0.00231, 0.00226, 0.00274, 0.00289, 0.00354, 0.00333, 0.00275, 0.00261, 0.00331, 0.00338, 0.00348, 0.00306, 0.00344, 0.00282, 0.00284, 0.00246, 0.00324, 0.00283, 0.00273, 0.00252, 0.00323, 0.00272, 0.00351, 0.00272, 0.00233, 0.00262, 0.0032, 0.00224, 0.00257, 0.00253, 0.00262, 0.00211, 0.00231, 0.00226, 0.00251, 0.00179, 0.00227, 0.00206, 0.00228, 0.00166, 0.00167, 0.00217, 0.00202, 0.0017, 0.00156, 0.0017, 0.00147, 0.00127, 0.00153, 0.0013, 0.00116, 0.00113],R1=0.02258,CUM2F=L2.reduce((a,v)=>(a.push((a.length?a[a.length-1]:0)+v),a),[]),KEEP=Array.from({length:24},(_,i)=>i*4+3),CUM2=KEEP.map(j=>CUM2F[j]),NK=NK1+KEEP.length,NT=145,NM=109,NV=77,OT=NK,OM=NK+NT,OV=NK+NT+NM,N=NK+NT+NM+NV,frames=[],NH=33,hfr=[];let loaded=0;const total=N+3+NH+3;
+const tick=()=>{loaded++;$('preBar').style.width=(loaded/total*100)+'%';if(loaded===total)setTimeout(start,300)};
+const s1=new Image();s1.onload=tick;s1.onerror=tick;s1.src='s1.jpg';
+const s2={naturalWidth:0};tick();const cam=new Image();cam.onload=tick;cam.onerror=tick;cam.src='camera.webp';
+for(let i=1;i<=N;i++){const im=new Image();im.onload=tick;im.onerror=tick;const P=n=>String(n).padStart(3,'0');im.src=i<=NK1?'k/f'+P(i)+'.jpg':i<=NK?'k/f'+P(97+KEEP[i-NK1-1])+'.jpg':i<=OM?'t/f'+P(i-NK)+'.jpg':i<=OV?'m/f'+P(i-OM)+'.jpg':'v/f'+P(i-OV)+'.jpg';frames.push(im);}
+for(let i=0;i<NH;i++){const im=new Image();im.onload=tick;im.onerror=tick;im.src='h/f'+String(i).padStart(3,'0')+'.jpg';hfr.push(im);}
+const HIMG={};for(const [k,u] of [['helm','h/helmet.webp'],['refl','h/reflect.jpg'],['mcl','h/rear.jpg']]){const im=new Image();im.onload=tick;im.onerror=tick;im.src=u;HIMG[k]=im;}
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));const seg=(p,a,b)=>clamp((p-a)/(b-a));
+const ease=t=>1-Math.pow(1-t,3);const inout=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+let W=0,H=0,dpr=1;
+function size(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;for(const c of [cv,iris]){c.width=W*dpr;c.height=H*dpr;}}
+function cover(img,a=1,z=1){if(!img||!img.naturalWidth)return;const cw=cv.width,ch=cv.height,s=Math.max(cw/img.naturalWidth,ch/img.naturalHeight)*z,w=img.naturalWidth*s,h=img.naturalHeight*s;ctx.globalAlpha=a;ctx.drawImage(img,(cw-w)/2,(ch-h)/2,w,h);ctx.globalAlpha=1;}
+function natPos(img,fx,fy){const cw=cv.width,ch=cv.height,s=Math.max(cw/img.naturalWidth,ch/img.naturalHeight),w=img.naturalWidth*s,h=img.naturalHeight*s;return[(cw-w)/2+fx*w,(ch-h)/2+fy*h];}
+function coverAt(img,a,z,fx,fy,tx,ty){if(!img||!img.naturalWidth)return;const cw=cv.width,ch=cv.height,s=Math.max(cw/img.naturalWidth,ch/img.naturalHeight),w=img.naturalWidth*s,h=img.naturalHeight*s;const P=natPos(img,fx,fy);const X=(tx==null?P[0]:tx),Y=(ty==null?P[1]:ty);ctx.globalAlpha=a;ctx.drawImage(img,X-fx*w*z,Y-fy*h*z,w*z,h*z);ctx.globalAlpha=1;}
+
+const CAM=[-60,15.75,2040,1152],SF=[579,517.5,543,370.5],SCR=[587.25,522.75,526.5,360];
+let camIn=0,titleFS=0;const TB=378;
+function fitTitle(){ctx.font='400 100px "Bebas Neue"';titleFS=100*1823/ctx.measureText('SHUTTER VELOCITA').width;}
+function drawCam(d,img,on,tk){const cw=cv.width,ch=cv.height;if(!cam.naturalWidth){cover(img);return;}
+ if(!titleFS)fitTitle();
+ const f=cw/1920,oy=(ch-1080*f)/2,D=(x,y)=>[x*f,oy+y*f];
+ const [sx,sy]=D(SCR[0],SCR[1]),sw=SCR[2]*f,sh=SCR[3]*f,scx=sx+sw/2,scy=sy+sh/2;
+ const Z=Math.max(cw/sw,ch/sh)*1.04,e=inout(d),z=Math.pow(Z,e);
+ const ox=scx+(cw/2-scx)*e,oy2=scy+(ch/2-scy)*e,T=(x,y)=>[ox+(x-scx)*z,oy2+(y-scy)*z],TD=(x,y)=>T(...D(x,y)),S=v=>v*f*z;
+ // spotlight
+ const [gx,gy]=TD(960,609),g=ctx.createRadialGradient(gx,gy,0,gx,gy,S(760));g.addColorStop(0,`rgba(58,58,54,${.55*camIn})`);g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(0,0,cw,ch);
+ // title, behind the camera
+ if(tk>0){ctx.save();ctx.globalAlpha=tk;ctx.font=`400 ${S(titleFS)}px "Bebas Neue"`;ctx.fillStyle='#EEEEE8';ctx.textBaseline='alphabetic';ctx.filter=`blur(${(1-tk)*16*f}px)`;const [tx,ty]=TD(48,TB+(1-tk)*40);ctx.fillText('SHUTTER VELOCITA',tx,ty);ctx.restore();}
+ // camera body
+ ctx.globalAlpha=camIn;const [cx0,cy0]=TD(CAM[0],CAM[1]);ctx.drawImage(cam,cx0,cy0,S(CAM[2]),S(CAM[3]));ctx.globalAlpha=1;
+ // screen
+ const [rx,ry]=TD(SCR[0],SCR[1]),rw=S(SCR[2]),rh=S(SCR[3]);
+ ctx.save();ctx.beginPath();ctx.rect(rx,ry,rw,rh);ctx.clip();ctx.fillStyle='#040404';ctx.fillRect(rx,ry,rw,rh);
+ if(on>0){const bl=seg(on,0,.3)*(1-seg(on,.35,1)),ia=seg(on,.25,1);
+  ctx.fillStyle=`rgba(34,36,40,${bl})`;ctx.fillRect(rx,ry,rw,rh);
+  if(ia>0&&img.naturalWidth){const zi=1+(1-ia)*.04,ccx=rx+rw/2,ccy=ry+rh/2,ix0=Math.max(rx,0),ix1=Math.min(rx+rw,cw),iy0=Math.max(ry,0),iy1=Math.min(ry+rh,ch),hx=Math.max(ccx-ix0,ix1-ccx),hy=Math.max(ccy-iy0,iy1-ccy),k=Math.max(2*hx/img.naturalWidth,2*hy/img.naturalHeight)*zi,w=img.naturalWidth*k,h=img.naturalHeight*k;ctx.globalAlpha=ia;ctx.drawImage(img,ccx-w/2,ccy-h/2,w,h);ctx.globalAlpha=1;}
+  // camera UI overlay
+  const ua=showRead*seg(on,.55,1)*(1-seg(e,0,.35));if(ua>0){const U=(x,y)=>TD(SF[0]+x,SF[1]+y);ctx.globalAlpha=ua;ctx.fillStyle='#EEEEE8';ctx.font=`500 ${S(15)}px "Geist Mono",ui-monospace,monospace`;ctx.textBaseline='middle';
+   for(const [t,x,y] of [['AF-C',21,27.5],['1,248',419.5,27.5],['1/2000',21,335.75],['F2.8',106.5,335.75],['ISO 400',169.5,335.75],['±0.0',263.25,335.75]]){const [px,py]=U(x,y);ctx.fillText(t,px,py);}
+   ctx.strokeStyle='#EEEEE8';ctx.lineWidth=S(1.5);let [bx,by]=U(483.5,19.5);ctx.strokeRect(bx,by,S(34),S(16.2));ctx.fillRect(bx+S(3),by+S(3),S(24),S(10.2));ctx.fillRect(bx+S(34.5),by+S(5),S(3),S(6.2));
+   ctx.strokeStyle='#4be36a';ctx.lineWidth=S(2);[bx,by]=U(162.9,133.38);const fw=S(93.6),fh=S(70.2),L=S(16);ctx.beginPath();
+   for(const [qx,qy,dx,dy] of [[bx,by,1,1],[bx+fw,by,-1,1],[bx,by+fh,1,-1],[bx+fw,by+fh,-1,-1]]){ctx.moveTo(qx+dx*L,qy);ctx.lineTo(qx,qy);ctx.lineTo(qx,qy+dy*L);}ctx.stroke();
+   const [dx2,dy2]=U(516,336);ctx.fillStyle=`rgba(225,30,30,${.55+.45*Math.abs(Math.sin(performance.now()/500))})`;ctx.beginPath();ctx.arc(dx2,dy2,S(6),0,7);ctx.fill();ctx.globalAlpha=1;}}
+ const gl=ctx.createLinearGradient(rx,ry,rx+rw,ry+rh);gl.addColorStop(0,`rgba(255,255,255,${.06*(1-e)})`);gl.addColorStop(.45,'rgba(255,255,255,0)');ctx.fillStyle=gl;ctx.fillRect(rx,ry,rw,rh);
+ ctx.restore();}
+const BLK=document.createElement('canvas');BLK.width=16;BLK.height=9;BLK.getContext('2d').fillRect(0,0,16,9);BLK.naturalWidth=16;BLK.naturalHeight=9;
+const VIS=[0.360125,0.377778,0.675887,0.641667];
+function coverRect(img){const cw=cv.width,ch=cv.height,s=Math.max(cw/img.naturalWidth,ch/img.naturalHeight),w=img.naturalWidth*s,h=img.naturalHeight*s;return[(cw-w)/2,(ch-h)/2,w,h];}
+function visorRect(){const b=hfr[0];if(!b||!b.naturalWidth)return[0,0,0,0];const [x,y,w,h]=coverRect(b);return[x+VIS[0]*w,y+VIS[1]*h,(VIS[2]-VIS[0])*w,(VIS[3]-VIS[1])*h];}
+// helmet ending: r = reversed clip 5 progress (0 = inside the black visor, 1 = hero helmet), tk = title, rk = reflection
+function drawHelm(r,tk,rk){const cw=cv.width,ch=cv.height;ctx.fillStyle='#000';ctx.fillRect(0,0,cw,ch);
+ const img=hfr[Math.round((1-r)*(NH-1))];if(!img||!img.naturalWidth)return;
+ const zq=ease(seg(r,0,S.c5ZoomOut)),z=1+(S.c5Zoom-1)*(1-zq);coverAt(img,1,z,.28,.5);
+ if(r<1)return;
+ if(!titleFS)fitTitle();const f=cw/1920,oy=(ch-1080*f)/2;
+ if(tk>0){ctx.save();ctx.globalAlpha=tk;ctx.font=`400 ${titleFS*f}px "Bebas Neue"`;ctx.fillStyle='#EEEEE8';ctx.textBaseline='alphabetic';ctx.filter=`blur(${(1-tk)*16*f}px)`;ctx.fillText('SHUTTER VELOCITA',48*f,oy+(TB+(1-tk)*40)*f);ctx.restore();
+  const hm=HIMG.helm;if(hm.naturalWidth){const [x,y,w,h]=coverRect(hm);ctx.drawImage(hm,x,y,w,h);}}
+ const rf=HIMG.refl;if(rk>0&&rf.naturalWidth){const [x,y,w,h]=coverRect(rf);ctx.save();ctx.globalCompositeOperation='screen';ctx.globalAlpha=rk;ctx.drawImage(rf,x,y,w,h);ctx.restore();}}
+function camScreenRect(){const cw=cv.width,ch=cv.height,f=cw/1920,oy=(ch-1080*f)/2;return[SCR[0]*f,oy+SCR[1]*f,SCR[2]*f,SCR[3]*f];}
+function handoff(h){const cw=cv.width,ch=cv.height,img=HIMG.mcl,e=inout(clamp(h/.9));
+ ctx.fillStyle='#000';ctx.fillRect(0,0,cw,ch);
+ // helmet + title sink back and blur
+ ctx.save();ctx.filter=`blur(${e*S.camBlur*dpr}px)`;ctx.translate(cw/2,ch/2);const sc=1-e*.08;ctx.scale(sc,sc);ctx.translate(-cw/2,-ch/2+e*ch*S.sink);
+ drawHelm(1,0,1);ctx.restore();ctx.filter='none';
+ ctx.fillStyle=`rgba(0,0,0,${e*.55})`;ctx.fillRect(0,0,cw,ch);
+ // the reflection lifts out of the visor and grows to fill the frame
+ if(!img||!img.naturalWidth)return;const [sx,sy,sw,sh]=visorRect(),L=(a,b)=>a+(b-a)*e;
+ const rx=L(sx,0),ry=L(sy,0),rw=L(sw,cw),rh=L(sh,ch),ga=seg(e,0,.3),rr=Math.min(rw,rh)*.22*(1-seg(e,0,.7));
+ ctx.save();ctx.globalAlpha=ga*seg(e,.15,.4);ctx.shadowColor='rgba(0,0,0,.7)';ctx.shadowBlur=60*dpr*Math.sin(Math.PI*Math.min(e,1));ctx.fillStyle='#000';ctx.beginPath();ctx.roundRect(rx,ry,rw,rh,rr);ctx.fill();ctx.restore();
+ ctx.save();ctx.beginPath();ctx.roundRect(rx,ry,rw,rh,rr);ctx.clip();const k=Math.max(rw/img.naturalWidth,rh/img.naturalHeight),w=img.naturalWidth*k,hgt=img.naturalHeight*k;
+ ctx.globalAlpha=ga;ctx.filter=`brightness(${.42+.58*seg(e,0,.6)})`;ctx.drawImage(img,rx+(rw-w)/2,ry+(rh-hgt)/2,w,hgt);ctx.restore();ctx.filter='none';}
+// scroll state
+let lenis=null,p=0,vel=0,lastP=0,hh=0,whipBusy=false;
+function whipZone(){const vh=innerHeight,a=hero.offsetTop+(S.heroLen-100)*vh/100;return[a,a+S.shutLen*vh/100];}
+function whipGo(to){whipBusy=true;const done=()=>{whipBusy=false;};
+ if(lenis){lenis.scrollTo(to,{duration:S.whipTime,easing:t=>t,lock:true,force:true,onComplete:done});setTimeout(done,S.whipTime*1000+200);}
+ else{const y0=scrollY,t0=performance.now();(function st(){const k=Math.min(1,(performance.now()-t0)/(S.whipTime*1000));scrollTo(0,y0+(to-y0)*k);if(k<1)requestAnimationFrame(st);else done();})();}}
+function whipIntent(dir){const [a,b]=whipZone(),y=scrollY;if(whipBusy)return true;
+ if(dir>0&&y>=a-2&&y<b-2){whipGo(b);return true;}
+ if(dir<0&&y>a+2&&y<=b+2){whipGo(a);return true;}
+ return false;}
+addEventListener('wheel',e=>{if(Math.abs(e.deltaY)<1)return;const [a,b]=whipZone(),y=scrollY;if(whipBusy||(e.deltaY>0&&y>=a-2&&y<b-2)||(e.deltaY<0&&y>a+2&&y<=b+2)){e.preventDefault();e.stopImmediatePropagation();whipIntent(Math.sign(e.deltaY));}},{passive:false,capture:true});
+let tY=null;addEventListener('touchstart',e=>{tY=e.touches[0].clientY;},{passive:true,capture:true});
+addEventListener('touchmove',e=>{if(tY==null)return;const d=tY-e.touches[0].clientY,[a,b]=whipZone(),y=scrollY;if(whipBusy||(d>0&&y>=a-2&&y<b-2)||(d<0&&y>a+2&&y<=b+2)){e.preventDefault();e.stopImmediatePropagation();if(Math.abs(d)>12){whipIntent(Math.sign(d));tY=null;}}},{passive:false,capture:true});
+addEventListener('keydown',e=>{const dn=['ArrowDown','PageDown',' ','Space'].includes(e.key),up=['ArrowUp','PageUp'].includes(e.key);if((dn||up)&&whipIntent(dn?1:-1))e.preventDefault();},{capture:true});
+// ===== scroll settings (panel) =====
+const SDEF={holdStart:0,holdEnd:0,readouts:1,heroLen:1150,handoffLen:140,sink:.12,camBlur:14,lerp:.09,wheel:.9,follow:.18,camFade:1800,screenOn:.07,diveStart:.08,diveEnd:.24,shutLen:100,whipBlur:60,whipTime:1.1,pushEnd:.80,zoomOutEnd:.91,titleStart:.91,titleEnd:.96,reflectStart:.94,reflectEnd:.995,c5Zoom:2.2,c5ZoomOut:.35,garageEnd:.30,punch2End:.34,trackEnd:.50,mclarenEnd:.78,headOn:.35,zoom1:2.4,zoom2:3.2,streak:1,velStreak:.7,b1a:.27,b1b:.40,b2a:.45,b2b:.53,b3a:.58,b3b:.66};
+// the scroll settings panel only shows in the Claude preview (inside claude.ai), on localhost, or with ?settings in the address; it is hidden on the live site
+const SHOW_PANEL=(()=>{try{if(/[?&]settings\b/.test(location.search))return true;if(['localhost','127.0.0.1'].includes(location.hostname))return true;return window.self!==window.top;}catch(e){return true;}})();
+const S=Object.assign({},SDEF);if(SHOW_PANEL)try{Object.assign(S,JSON.parse(localStorage.getItem('sv-scroll-v4')||'{}'));}catch(e){}
+const SUI=[['Scroll feel',[['heroLen','Hero animation length (vh)',200,1400,10],['lerp','Smoothness (lower = smoother)',.02,.3,.005],['wheel','Wheel speed',.2,2,.05],['follow','Animation catch-up',.04,1,.01],['camFade','Camera fade-in on load (ms)',200,4000,50]]],
+['Hero phases (whole hero, 0–1)',[['screenOn','Screen turned on by',.01,.2,.005],['diveStart','Zoom into screen starts',0,.4,.005],['diveEnd','Zoom into screen ends',.05,.5,.005],['pushEnd','Inside the visor (black) at',.5,.98,.005],['zoomOutEnd','Out on the hero helmet by',.6,1,.005],['reflectStart','Visor reflection starts',.6,1,.005],['reflectEnd','Visor reflection fully in',.6,1,.005],['c5Zoom','Zoom when coming out of black',1,3.5,.05],['c5ZoomOut','Zoom-out length (share of helmet clip)',.05,1,.01]]],
+['Video sections (inside the video part, 0–1)',[['garageEnd','Garage push ends',.05,.9,.005],['punch2End','Onto track done',.1,.95,.005],['trackEnd','BMW track ends',.15,.95,.005],['mclarenEnd','McLaren ends / driver starts',.2,.98,.005],['headOn','McLaren head-on share',.05,.8,.01]]],
+['Zooms',[['zoom2','Zoom-through-headlight depth',1,6,.1],['streak','Motion streak strength',0,2,.05],['velStreak','Streak on fast scroll',0,1.5,.05]]],
+
+['Whip-tilt into Work',[['shutLen','Whip length (vh of scroll)',30,250,5],['whipBlur','Whip motion blur (px)',0,120,1],['whipTime','Whip duration (seconds)',.4,3,.05]]],
+['Text beats (whole hero, 0–1)',[['b1a','"Camera" in',0,1,.005],['b1b','"Camera" out',0,1,.005],['b2a','"Lens" in',0,1,.005],['b2b','"Lens" out',0,1,.005],['b3a','"Combustion" in',0,1,.005],['b3b','"Combustion" out',0,1,.005]]]];
+let showRead=1;
+function applyS(){showRead=S.readouts?1:0;hero.style.height=(S.heroLen+S.shutLen+100)+'vh';if(lenis){lenis.options.lerp=S.lerp;lenis.options.wheelMultiplier=S.wheel;}try{localStorage.setItem('sv-scroll-v4',JSON.stringify(S));}catch(e){}}
+function buildPanel(){const pn=document.createElement('div');pn.id='spanel';
+ pn.innerHTML='<button id="sp-tog">Scroll settings</button><div id="sp-body" data-lenis-prevent><div class="sp-grid"></div><details id="sp-adv"><summary>Advanced timing</summary><div id="sp-pos">Hero position: <b>0.000</b> · Hand-off: <b>0.000</b></div><div class="sp-advlist"></div></details><div class="sp-bar"><button id="sp-copy">Copy settings</button><button id="sp-reset">Reset to defaults</button></div></div>';
+ document.body.appendChild(pn);const grid=pn.querySelector('.sp-grid'),adv=pn.querySelector('.sp-advlist'),rows=[];
+ const fmt=(k,v)=>(k==='heroLen'||k==='handoffLen')?v+'vh':(k==='holdStart'||k==='holdEnd')?Math.round(v*100)+'%':(+v).toFixed(2);
+ const card=(k,label,mn,mx2,st)=>{const c=document.createElement('div');c.className='sp-card';c.innerHTML=`<div class="sp-l">${label} <b></b></div><input type="range" min="${mn}" max="${mx2}" step="${st}">`;const r=c.querySelector('input'),b=c.querySelector('b');
+  const sync=()=>{r.value=S[k];b.textContent=fmt(k,S[k]);};r.oninput=e=>{S[k]=+e.target.value;sync();applyS();};sync();rows.push(sync);grid.appendChild(c);};
+ const toggle=(k,label)=>{const c=document.createElement('div');c.className='sp-card';c.innerHTML=`<div class="sp-l">${label}</div><div class="sp-tg"><button>On</button><button>Off</button></div>`;const [on,off]=c.querySelectorAll('button');
+  const sync=()=>{on.classList.toggle('act',!!S[k]);off.classList.toggle('act',!S[k]);};on.onclick=()=>{S[k]=1;sync();applyS();};off.onclick=()=>{S[k]=0;sync();applyS();};sync();rows.push(sync);grid.appendChild(c);};
+ card('heroLen','Scroll length',200,1400,10);card('follow','Smoothing',.04,1,.01);
+ card('holdStart','Hold on first frame',0,.4,.01);card('holdEnd','Hold on last frame',0,.4,.01);toggle('readouts','Readout overlay');
+ for(const [g,items] of SUI){const h=document.createElement('h4');h.textContent=g;adv.appendChild(h);
+  for(const [k,label,mn,mx2,st] of items){if(['heroLen','follow','handoffLen'].includes(k))continue;const row=document.createElement('label');row.innerHTML=`<span>${label}</span><input type="range" min="${mn}" max="${mx2}" step="${st}"><input type="number" min="${mn}" max="${mx2}" step="${st}">`;const [r,n]=row.querySelectorAll('input');
+   const sync=()=>{r.value=S[k];n.value=S[k];};const set=v=>{v=+v;if(isNaN(v))return;S[k]=v;sync();applyS();};r.oninput=e=>set(e.target.value);n.onchange=e=>set(e.target.value);sync();rows.push(sync);adv.appendChild(row);}}
+ pn.querySelector('#sp-tog').onclick=()=>pn.classList.toggle('open');
+ pn.querySelector('#sp-reset').onclick=()=>{Object.assign(S,SDEF);rows.forEach(f=>f());applyS();};
+ pn.querySelector('#sp-copy').onclick=async e=>{const txt=JSON.stringify(S);try{await navigator.clipboard.writeText(txt);e.target.textContent='Copied';}catch(_){prompt('Copy these settings:',txt);}setTimeout(()=>e.target.textContent='Copy settings',1500);};
+ pn.addEventListener('wheel',ev=>ev.stopPropagation(),{passive:true});
+ (function pos(){const b=pn.querySelectorAll('#sp-pos b');if(b[1]){b[0].textContent=p.toFixed(3);b[1].textContent=hh.toFixed(3);}requestAnimationFrame(pos);})();}
+
+function heroP(){const r=hero.getBoundingClientRect();const max=hero.offsetHeight-innerHeight;return clamp(-r.top/max);}
+// text helpers
+function blurIn(el,t){for(const [i,s] of [...el.querySelectorAll('span')].entries()){const k=clamp(t*1.6-i*.3);s.style.opacity=k;s.style.filter=`blur(${(1-k)*18}px)`;s.style.transform=`translateY(${(1-k)*0.25}em) scale(${1+(1-k)*.08})`;}const sm=el.querySelector('small');if(sm)sm.style.opacity=clamp(t*1.6-.8)*.6;}
+function beat(el,p,a,b){const span=b-a,inn=seg(p,a,a+span*.35),out=seg(p,b-span*.3,b);el.style.opacity=1;blurIn(el,inn);if(out>0)for(const s of el.querySelectorAll('span,small')){s.style.opacity=(1-out)*(s.tagName==='SMALL'?.6:1);s.style.filter=`blur(${out*18}px)`;}el.style.visibility=(p<a||p>b)?'hidden':'visible';}
+// aperture iris: 7 blades
+function drawIris(k){ictx.clearRect(0,0,iris.width,iris.height);if(k<=0)return;const cx=iris.width/2,cy=iris.height/2,R=Math.hypot(cx,cy)*1.05,open=R*(1-k)*1.02,n=7,rot=k*1.1;
+ ictx.fillStyle='#050505';ictx.strokeStyle='rgba(238,238,232,.10)';ictx.lineWidth=1*dpr;
+ for(let i=0;i<n;i++){const a=rot+i*2*Math.PI/n;ictx.save();ictx.translate(cx,cy);ictx.rotate(a);ictx.beginPath();
+  ictx.moveTo(open,-R*3);ictx.lineTo(R*3,-R*3);ictx.lineTo(R*3,R*0.62);ictx.lineTo(open,Math.tan(Math.PI/n)*open*1.04);ictx.closePath();ictx.fill();ictx.stroke();ictx.restore();}}
+let gt=0;
+function render(){
+ const hy=-hero.getBoundingClientRect().top,vhh=innerHeight,animR=(S.heroLen-100)*vhh/100,t=clamp((clamp(hy/animR)-S.holdStart)/Math.max(.05,1-S.holdStart-S.holdEnd)),hT=clamp((hy-animR)/(S.handoffLen*vhh/100));p+= (t-p)*S.follow;hh+=(hT-hh)*S.follow;if(Math.abs(hT-hh)<.0005)hh=hT;vel=vel*.85+(p-lastP)*.15;lastP=p;
+ // phases: 0-.08 intro hold, .08-.86 push, .86-1 iris
+ const push=seg(p,S.diveEnd,S.pushEnd);const dv=seg(p,S.diveStart,S.diveEnd),son=seg(p,.005,S.screenOn);
+ ctx.fillStyle='#000';ctx.fillRect(0,0,cv.width,cv.height);
+ const NA=NK,A1=S.garageEnd,B0=S.punch1End,B1=S.macroEnd,C0=S.punch2End;
+ const strk=(img,z,fx,fy,tx,ty,s)=>{for(let k=1;k<=4;k++)coverAt(img,.16*s*S.streak,z*(1+k*.035*s*S.streak),fx,fy,tx,ty);};
+ let f,z=1,fx=.5,fy=.5,tx=null,ty=null,sv=0;
+ // punch: zoom into point (pf) on frame fa, land on frame fb at point (pb), no cut
+ const punch=(q,fa,pa,fb,pb,zin,zout,z0=1)=>{sv=Math.sin(Math.PI*q);
+  if(q<.5){const e=Math.pow(q/.5,2.2);f=fa;[fx,fy]=pa;z=z0+e*zin;const bp=natPos(fb,...pb),ap=natPos(fa,...pa);tx=ap[0]+(bp[0]-ap[0])*e;ty=ap[1]+(bp[1]-ap[1])*e;}
+  else{const e=1-Math.pow(1-(q-.5)/.5,2.2);f=fb;[fx,fy]=pb;z=zout-(zout-1)*e;}};
+ if(push<A1){const E2=CUM2[CUM2.length-1]/R1,t=push/A1*(NK1-1+E2);
+  if(t<=NK1-1)f=frames[Math.round(t)];else{const sv2=(t-(NK1-1))*R1;let j=0;while(j<CUM2.length-1&&CUM2[j]<sv2)j++;f=frames[NK1+j];}}
+ else if(push<C0){const q=(push-A1)/(C0-A1),fb=frames[OT],fa=frames[NK-1];punch(q,fa,[.30,.50],fb,[.265,.477],S.zoom2,4.2);
+  if(q>=.5){const e=1-Math.pow(1-(q-.5)/.5,2.2),bp=natPos(fa,.30,.50),np=natPos(fb,.265,.477);tx=bp[0]+(np[0]-bp[0])*e;ty=bp[1]+(np[1]-bp[1])*e;}}
+ else if(push<S.trackEnd){f=frames[OT+Math.round((push-C0)/(S.trackEnd-C0)*(NT-1))];}
+ else if(push<S.mclarenEnd){const q=(push-S.trackEnd)/(S.mclarenEnd-S.trackEnd),h=S.headOn,w=(1-h)/2;
+  const k=q<w?q/w*36:q<w+h?36+(q-w)/h*22:58+(q-w-h)/w*50;f=frames[OM+Math.round(k)];}
+ else{const q=(push-S.mclarenEnd)/(1-S.mclarenEnd);
+  if(q<.45)f=frames[OV+Math.round(q/.45*34)];else if(q<.9)f=frames[OV+35+Math.round((q-.45)/.45*41)];else{f=frames[N-1];const e=(q-.9)/.1;z=1+e*.75;fx=.5;fy=.5;}}
+ if(dv<1){drawCam(dv,s1,son,camIn);}
+ else if(push<=0.0001)cover(s1,1);
+ else{ if(f&&f.naturalWidth)coverAt(f,1,z,fx,fy,tx,ty); else cover(s1);
+  const a1=1-seg(push,0,.06);if(a1>0)cover(s1,a1);
+  const v=Math.max(Math.min(Math.abs(vel)*60,1)*S.velStreak,sv);if(v>.02&&f&&f.naturalWidth)strk(f,z,fx,fy,tx,ty,v);
+ }
+ if(p>=S.pushEnd){drawHelm(seg(p,S.pushEnd,S.zoomOutEnd),0,ease(seg(p,S.reflectStart,S.reflectEnd)));}
+ // title: blur apart as push starts
+ const tt=seg(p,.02,.14);const [ta,tb]=$('title').children;
+ ta.style.transform=`translateX(${-tt*12}vw)`;tb.style.transform=`translateX(${tt*12}vw)`;
+ for(const s of [ta,tb]){s.style.filter=`blur(${tt*24}px)`;s.style.opacity=1-tt;}
+ {const ig=$('ig-ring'),k=ease(seg(p,S.zoomOutEnd,S.reflectEnd));ig.style.opacity=k;ig.style.filter=k<1?`blur(${(1-k)*10}px)`:'none';ig.style.visibility=k>0.01?'visible':'hidden';}
+ {const q=clamp((hy-animR)/(S.shutLen*vhh/100)),e1=Math.pow(seg(q,0,.6),2.2),e2=1-Math.pow(1-seg(q,.3,1),2.6),x1=seg(q,0,.6),y2=seg(q,.3,1),vel=Math.max(q<.6?2.2*Math.pow(x1,1.2)/.6*1.15:0,q>.3?2.6*Math.pow(1-y2,1.6)/.7:0),bl=S.whipBlur*Math.min(1,vel/3.7),pn=hero.firstElementChild,wk=$('work'),wt=wk.getBoundingClientRect().top-(parseFloat(wk.dataset.ty)||0);
+  if(q>0&&q<1){pn.style.transform=`translateY(${-e1*vhh*1.15}px)`;$('vbHg').setAttribute('stdDeviation','0 '+(bl*(1-.4*e2)).toFixed(1));pn.style.filter=bl>.5?'url(#vbH)':'';}else{pn.style.transform='';pn.style.filter='';}
+  if(q>0&&q<1&&wt>-1){const ty=-wt+(1-e2)*vhh;wk.dataset.ty=ty;wk.style.transform=`translateY(${ty}px)`;$('vbWg').setAttribute('stdDeviation','0 '+(bl*(1-e2*.5)).toFixed(1));wk.style.filter=bl>.5?'url(#vbW)':'';}else{wk.dataset.ty=0;wk.style.transform='';wk.style.filter='';}}
+ beat($('b1'),p,S.b1a,S.b1b);beat($('b2'),p,S.b2a,S.b2b);beat($('b3'),p,S.b3a,S.b3b);
+ drawIris(0);
+ document.querySelector('#prog i').style.width=(p*100)+'%';
+ $('prog').style.opacity=1-seg(p,.97,1);
+ requestAnimationFrame(render);
+}
+function introTitle(){for(const [i,s] of [...$('title').children].entries()){s.animate([{opacity:0,filter:'blur(28px)',transform:'translateY(.15em)'},{opacity:1,filter:'blur(0)',transform:'none'}],{duration:1400,delay:200+i*180,easing:'cubic-bezier(.2,.7,.2,1)',fill:'backwards'});}}
+function start(){$('pre').classList.add('done');document.fonts&&document.fonts.ready.then(fitTitle);const t0=performance.now();(function fi(){camIn=ease(clamp((performance.now()-t0-250)/S.camFade));if(camIn<1)requestAnimationFrame(fi);})();}
+// sections
+function secLayout(){const f=innerWidth/1920;for(const sec of document.querySelectorAll('.sec')){sec.style.height=(1080*f)+'px';sec.firstElementChild.style.transform=`scale(${f})`;}}
+// lightbox: the clicked picture expands out of its frame to fill the screen; click, Esc or scroll to close
+{const lb=$('lb'),li=lb.querySelector('img'),lc=lb.querySelector('.cap');let src=null,open=false,anim=0;
+ const fit=()=>{const iw=li.naturalWidth||16,ih=li.naturalHeight||9,m=Math.min(innerWidth*.9/iw,(innerHeight-170)/ih),w=iw*m,h=ih*m;return{x:(innerWidth-w)/2,y:(innerHeight-h)/2-30,w,h};};
+ const rect=el=>{const r=el.getBoundingClientRect();return{x:r.left,y:r.top,w:r.width,h:r.height};};
+ function run(a,b,dir){cancelAnimationFrame(anim);const t0=performance.now(),D=520;(function st(){const k=Math.min(1,(performance.now()-t0)/D),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2,L=(u,v)=>u+(v-u)*e,x=L(a.x,b.x),y=L(a.y,b.y),w=L(a.w,b.w),h=L(a.h,b.h);
+  Object.assign(li.style,{left:x+'px',top:y+'px',width:w+'px',height:h+'px'});const cp=dir>0?e:1-e;
+  const T=dir>0?a:b,c=1-cp;lb.style.clipPath=`inset(${T.y*c}px ${(innerWidth-T.x-T.w)*c}px ${(innerHeight-T.y-T.h)*c}px ${T.x*c}px)`;
+  lc.style.opacity=dir>0?Math.max(0,(k-.6)/.4):0;if(k<1)anim=requestAnimationFrame(st);else if(dir<0){lb.style.visibility='hidden';open=false;}})();}
+ function show(ph,i){src=ph;const bg=getComputedStyle(ph).backgroundPosition;li.style.objectPosition=bg;li.src=`insp/i${i}.jpg`;const ar=ph.closest('.arch');lc.innerHTML=`<b>${ar.querySelector('.nm').textContent}</b>${ar.querySelector('.yr').textContent} · ${ar.querySelector('.mt').textContent}`;
+  const go=()=>{lb.style.visibility='visible';open=true;run(rect(ph),fit(),1);};li.complete&&li.naturalWidth?go():li.onload=go;}
+ function hide(){if(!open||!src)return;run(rect(lb.querySelector('img')),rect(src),-1);}
+ document.querySelectorAll('.arch .ph').forEach((ph,k)=>ph.addEventListener('click',()=>show(ph,k+1)));
+ lb.addEventListener('click',hide);addEventListener('keydown',e=>{if(e.key==='Escape')hide();});addEventListener('wheel',()=>{if(open)hide();},{passive:true});
+ addEventListener('resize',()=>{if(open){const f=fit();Object.assign(li.style,{left:f.x+'px',top:f.y+'px',width:f.w+'px',height:f.h+'px'});}});}
+for(const a of document.querySelectorAll('.arch'))a.addEventListener('mouseenter',()=>{for(const b of document.querySelectorAll('.arch'))b.classList.toggle('on',b===a)});
+// work slit opens like a shutter as it enters
+const slit=$('w-slit'),slitImg=slit&&slit.firstElementChild,eT=document.querySelector('#work .edge'),eB=document.querySelectorAll('#work .edge')[1];
+let shut=0,wMode=1;const WF=[.55,.6,.55,.55,.6,.55,.55],WN=['line','space','away','blink','the doctor','druids','open'];
+function showWork(i){const el=$('w-name'),t0=performance.now();let swapped=false;
+ for(const d of document.querySelectorAll('#w-row div'))d.classList.toggle('on',+d.dataset.i===i);
+ document.querySelectorAll('#w-ticks i').forEach((t,k)=>t.classList.toggle('on',k===i-1));el.style.opacity=0;
+ (function an(){const k=(performance.now()-t0)/520;if(k<.4)shut=ease(k/.4);else{if(!swapped){swapped=true;wMode=1;slitImg.style.backgroundPosition=`center ${WF[i-1]*100}%`;slitImg.style.backgroundImage=`url(work/w${i}.jpg?v=2)`;$('w-ghost').style.backgroundImage=`url(work/w${i}.jpg?v=2)`;el.textContent=WN[i-1];el.style.fontSize='120px';let fs=120;while(el.scrollWidth>460&&fs>40){fs-=4;el.style.fontSize=fs+'px';}el.style.opacity=1;}shut=1-ease(Math.min(1,(k-.4)/.6));}
+  if(k<1)requestAnimationFrame(an);else shut=0;})();}
+for(const d of document.querySelectorAll('#w-row div'))d.addEventListener('click',()=>showWork(+d.dataset.i));
+function workOpen(){const r=$('work').getBoundingClientRect(),f=innerWidth/1920,k=ease(clamp(1-(r.top/innerHeight)));
+ const h=680*(1-shut),top=490-h/2;slit.style.top=top+'px';slit.style.height=h+'px';if(wMode){slitImg.style.top=(150-top)+'px';slitImg.style.height='680px';}else{slitImg.style.top=(-top-Math.max(r.top,0)/f)+'px';slitImg.style.height=(innerHeight/f)+'px';}eT.style.top=(top-1)+'px';eB.style.top=(top+h)+'px';
+ for(const [i,d] of [...document.querySelectorAll('#w-row div')].entries())d.style.transform=`translateY(${(1-clamp(k*1.4-i*.05))*60}px)`;
+ requestAnimationFrame(workOpen);}
+// cursor
+const cur=$('cur');let mx=innerWidth/2,my=innerHeight/2,cx2=mx,cy2=my;
+addEventListener('pointermove',e=>{mx=e.clientX;my=e.clientY;cur.classList.toggle('big',!!e.target.closest('a,.arch,#w-row div'));});
+(function cl(){cx2+=(mx-cx2)*.2;cy2+=(my-cy2)*.2;cur.style.transform=`translate(${cx2}px,${cy2}px)`;requestAnimationFrame(cl);})();
+// smooth scroll
+try{lenis=new Lenis({lerp:S.lerp,wheelMultiplier:S.wheel});(function raf(t){lenis.raf(t);requestAnimationFrame(raf);})(0);
+ for(const a of document.querySelectorAll('header a'))a.addEventListener('click',e=>{e.preventDefault();lenis.scrollTo(a.getAttribute('href'),{duration:1.6});});}catch(e){}
+addEventListener('resize',()=>{size();secLayout();});
+if(SHOW_PANEL)buildPanel();applyS();size();secLayout();requestAnimationFrame(render);if(slit)requestAnimationFrame(workOpen);
+}
+</script>
+</body>
+</html>
