@@ -357,9 +357,16 @@ function render(){
 }
 function introTitle(){for(const [i,s] of [...$('title').children].entries()){s.animate([{opacity:0,filter:'blur(28px)',transform:'translateY(.15em)'},{opacity:1,filter:'blur(0)',transform:'none'}],{duration:1400,delay:200+i*180,easing:'cubic-bezier(.2,.7,.2,1)',fill:'backwards'});}}
 function start(){$('pre').classList.add('done');document.fonts&&document.fonts.ready.then(fitTitle);const t0=performance.now();(function fi(){camIn=ease(clamp((performance.now()-t0-250)/S.camFade));if(camIn<1)requestAnimationFrame(fi);})();
- /* portfolio embeds can open N mouse-wheel notches into the hero via ?wheels=N (100px × wheelMultiplier each) */
+ /* ?wheels=N — after load, jump N mouse-wheel notches into the hero.
+    One notch = 1/3 of the way to screen-on, so 3 notches = first clear post-load frame (LCD lit).
+    Re-apply after resize: portfolio iframes change height and would otherwise snap back to 0. */
  const wm=(/[?&]wheels=(\d+)\b/.exec(location.search)||[])[1];
- if(wm){const y=(+wm)*100*(S.wheel||1);const go=()=>{if(lenis)lenis.scrollTo(y,{immediate:true});else scrollTo(0,y);};requestAnimationFrame(()=>requestAnimationFrame(go));}}
+ if(wm){const seek=()=>{const animR=Math.max(1,(S.heroLen-100)*innerHeight/100),y=(+wm)*(S.screenOn*animR/3);
+  if(lenis)lenis.scrollTo(y,{immediate:true});else scrollTo(0,y);
+  const hy=-hero.getBoundingClientRect().top,t=clamp((clamp(hy/animR)-S.holdStart)/Math.max(.05,1-S.holdStart-S.holdEnd));p=lastP=t;camIn=1;};
+  seek();requestAnimationFrame(()=>requestAnimationFrame(seek));
+  [120,400,1000,2000].forEach(ms=>setTimeout(seek,ms));
+  addEventListener('resize',()=>{clearTimeout(seek._t);seek._t=setTimeout(seek,80);});}}
 // sections
 function secLayout(){const f=innerWidth/1920;for(const sec of document.querySelectorAll('.sec')){sec.style.height=(1080*f)+'px';sec.firstElementChild.style.transform=`scale(${f})`;}}
 // lightbox: the clicked picture expands out of its frame to fill the screen; click, Esc or scroll to close
