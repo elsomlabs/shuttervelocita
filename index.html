@@ -259,13 +259,13 @@ function handoff(h){const cw=cv.width,ch=cv.height,img=HIMG.mcl,e=inout(clamp(h/
 let lenis=null,p=0,vel=0,lastP=0,hh=0,whipBusy=false;
 function whipZone(){const vh=innerHeight,a=hero.offsetTop+(S.heroLen-100)*vh/100;return[a,a+S.shutLen*vh/100];}
 function whipGo(to){whipBusy=true;const done=()=>{whipBusy=false;};
- if(lenis){lenis.scrollTo(to,{duration:S.whipTime,easing:t=>t,lock:true,force:true,onComplete:done});setTimeout(done,S.whipTime*1000+200);}
+ if(lenis){lenis.scrollTo(to,{duration:S.whipTime,easing:t=>1-Math.pow(1-t,2.6),lock:true,force:true,onComplete:done});setTimeout(done,S.whipTime*1000+200);}
  else{const y0=scrollY,t0=performance.now();(function st(){const k=Math.min(1,(performance.now()-t0)/(S.whipTime*1000));scrollTo(0,y0+(to-y0)*k);if(k<1)requestAnimationFrame(st);else done();})();}}
 function snapStops(){const [a,b]=whipZone(),mx=document.documentElement.scrollHeight-innerHeight,st=[a,b];
  for(const id of ['work','inspiration']){const el=$(id),t=Math.min(mx,el.getBoundingClientRect().top+scrollY-(parseFloat(el.dataset.ty)||0));if(t>st[st.length-1]+2)st.push(t);}
  return st;}
 function snapGo(to,whip){if(whip)return whipGo(to);whipBusy=true;const done=()=>{whipBusy=false;};
- if(lenis){lenis.scrollTo(to,{duration:S.snapTime,easing:t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2,lock:true,force:true,onComplete:done});setTimeout(done,S.snapTime*1000+200);}
+ if(lenis){lenis.scrollTo(to,{duration:S.snapTime,easing:t=>t>=1?1:1-Math.pow(2,-10*t),lock:true,force:true,onComplete:done});setTimeout(done,S.snapTime*1000+200);}
  else{scrollTo({top:to,behavior:'smooth'});setTimeout(done,S.snapTime*1000);}}
 // every section after the hero is locked: one scroll moves exactly one section
 function inLock(dir){const st=snapStops(),y=scrollY;return dir>0?(y>=st[0]-2&&y<st[st.length-1]-2):(y>st[0]+2&&y<=st[st.length-1]+2);}
