@@ -261,16 +261,23 @@ function whipZone(){const vh=innerHeight,a=hero.offsetTop+(S.heroLen-100)*vh/100
 function whipGo(to){whipBusy=true;const done=()=>{whipBusy=false;};
  if(lenis){lenis.scrollTo(to,{duration:S.whipTime,easing:t=>t,lock:true,force:true,onComplete:done});setTimeout(done,S.whipTime*1000+200);}
  else{const y0=scrollY,t0=performance.now();(function st(){const k=Math.min(1,(performance.now()-t0)/(S.whipTime*1000));scrollTo(0,y0+(to-y0)*k);if(k<1)requestAnimationFrame(st);else done();})();}}
-function whipIntent(dir){const [a,b]=whipZone(),y=scrollY;if(whipBusy)return true;
- if(dir>0&&y>=a-2&&y<b-2){whipGo(b);return true;}
- if(dir<0&&y>a+2&&y<=b+2){whipGo(a);return true;}
- return false;}
-addEventListener('wheel',e=>{if(Math.abs(e.deltaY)<1)return;const [a,b]=whipZone(),y=scrollY;if(whipBusy||(e.deltaY>0&&y>=a-2&&y<b-2)||(e.deltaY<0&&y>a+2&&y<=b+2)){e.preventDefault();e.stopImmediatePropagation();whipIntent(Math.sign(e.deltaY));}},{passive:false,capture:true});
+function snapStops(){const [a,b]=whipZone(),mx=document.documentElement.scrollHeight-innerHeight,st=[a,b];
+ for(const id of ['work','inspiration']){const el=$(id),t=Math.min(mx,el.getBoundingClientRect().top+scrollY-(parseFloat(el.dataset.ty)||0));if(t>st[st.length-1]+2)st.push(t);}
+ return st;}
+function snapGo(to,whip){if(whip)return whipGo(to);whipBusy=true;const done=()=>{whipBusy=false;};
+ if(lenis){lenis.scrollTo(to,{duration:S.snapTime,easing:t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2,lock:true,force:true,onComplete:done});setTimeout(done,S.snapTime*1000+200);}
+ else{scrollTo({top:to,behavior:'smooth'});setTimeout(done,S.snapTime*1000);}}
+// every section after the hero is locked: one scroll moves exactly one section
+function inLock(dir){const st=snapStops(),y=scrollY;return dir>0?(y>=st[0]-2&&y<st[st.length-1]-2):(y>st[0]+2&&y<=st[st.length-1]+2);}
+function whipIntent(dir){if(whipBusy)return true;if(!inLock(dir))return false;const st=snapStops(),y=scrollY;
+ if(dir>0){const n=st.findIndex(v=>v>y+2);if(n<0)return false;snapGo(st[n],n===1);return true;}
+ let n=-1;for(let i=st.length-1;i>=0;i--)if(st[i]<y-2){n=i;break;}if(n<0)return false;snapGo(st[n],n===0);return true;}
+addEventListener('wheel',e=>{if(Math.abs(e.deltaY)<1)return;if(e.target.closest&&e.target.closest('#w-rowwrap,#spanel'))return;const d=Math.sign(e.deltaY);if(whipBusy||inLock(d)){e.preventDefault();e.stopImmediatePropagation();whipIntent(d);}},{passive:false,capture:true});
 let tY=null;addEventListener('touchstart',e=>{tY=e.touches[0].clientY;},{passive:true,capture:true});
-addEventListener('touchmove',e=>{if(tY==null)return;const d=tY-e.touches[0].clientY,[a,b]=whipZone(),y=scrollY;if(whipBusy||(d>0&&y>=a-2&&y<b-2)||(d<0&&y>a+2&&y<=b+2)){e.preventDefault();e.stopImmediatePropagation();if(Math.abs(d)>12){whipIntent(Math.sign(d));tY=null;}}},{passive:false,capture:true});
+addEventListener('touchmove',e=>{if(tY==null)return;const dd=tY-e.touches[0].clientY,d=Math.sign(dd);if(whipBusy||(d&&inLock(d))){e.preventDefault();e.stopImmediatePropagation();if(Math.abs(dd)>12){whipIntent(d);tY=null;}}},{passive:false,capture:true});
 addEventListener('keydown',e=>{const dn=['ArrowDown','PageDown',' ','Space'].includes(e.key),up=['ArrowUp','PageUp'].includes(e.key);if((dn||up)&&whipIntent(dn?1:-1))e.preventDefault();},{capture:true});
 // ===== scroll settings (panel) =====
-const SDEF={holdStart:0,holdEnd:0,readouts:1,heroLen:1150,handoffLen:140,sink:.12,camBlur:14,lerp:.09,wheel:.9,follow:.18,camFade:1800,screenOn:.07,diveStart:.08,diveEnd:.24,shutLen:100,whipBlur:60,whipTime:1.1,pushEnd:.80,zoomOutEnd:.91,titleStart:.91,titleEnd:.96,reflectStart:.94,reflectEnd:.995,c5Zoom:2.2,c5ZoomOut:.35,garageEnd:.30,punch2End:.34,trackEnd:.50,mclarenEnd:.78,headOn:.35,zoom1:2.4,zoom2:3.2,streak:1,velStreak:.7,b1a:.27,b1b:.40,b2a:.45,b2b:.53,b3a:.58,b3b:.66};
+const SDEF={holdStart:0,holdEnd:0,readouts:1,heroLen:1150,handoffLen:140,sink:.12,camBlur:14,lerp:.09,wheel:.9,follow:.18,camFade:1800,screenOn:.07,diveStart:.08,diveEnd:.24,shutLen:100,whipBlur:60,whipTime:1.1,snapTime:1.1,pushEnd:.80,zoomOutEnd:.91,titleStart:.91,titleEnd:.96,reflectStart:.94,reflectEnd:.995,c5Zoom:2.2,c5ZoomOut:.35,garageEnd:.30,punch2End:.34,trackEnd:.50,mclarenEnd:.78,headOn:.35,zoom1:2.4,zoom2:3.2,streak:1,velStreak:.7,b1a:.27,b1b:.40,b2a:.45,b2b:.53,b3a:.58,b3b:.66};
 // the scroll settings panel only shows in the Claude preview (inside claude.ai), on localhost, or with ?settings in the address; it is hidden on the live site
 const SHOW_PANEL=(()=>{try{if(/[?&]settings\b/.test(location.search))return true;if(['localhost','127.0.0.1'].includes(location.hostname))return true;if(/(^|\.)elsomlabs\.com$|\.pages\.dev$/.test(location.hostname))return false;return window.self!==window.top;}catch(e){return true;}})();
 const S=Object.assign({},SDEF);if(SHOW_PANEL)try{Object.assign(S,JSON.parse(localStorage.getItem('sv-scroll-v4')||'{}'));}catch(e){}
@@ -279,7 +286,7 @@ const SUI=[['Scroll feel',[['heroLen','Hero animation length (vh)',200,1400,10],
 ['Video sections (inside the video part, 0–1)',[['garageEnd','Garage push ends',.05,.9,.005],['punch2End','Onto track done',.1,.95,.005],['trackEnd','BMW track ends',.15,.95,.005],['mclarenEnd','McLaren ends / driver starts',.2,.98,.005],['headOn','McLaren head-on share',.05,.8,.01]]],
 ['Zooms',[['zoom2','Zoom-through-headlight depth',1,6,.1],['streak','Motion streak strength',0,2,.05],['velStreak','Streak on fast scroll',0,1.5,.05]]],
 
-['Whip-tilt into Work',[['shutLen','Whip length (vh of scroll)',30,250,5],['whipBlur','Whip motion blur (px)',0,120,1],['whipTime','Whip duration (seconds)',.4,3,.05]]],
+['Whip-tilt into Work',[['shutLen','Whip length (vh of scroll)',30,250,5],['whipBlur','Whip motion blur (px)',0,120,1],['whipTime','Whip duration (seconds)',.4,3,.05],['snapTime','Section-to-section duration (seconds)',.4,3,.05]]],
 ['Text beats (whole hero, 0–1)',[['b1a','"Camera" in',0,1,.005],['b1b','"Camera" out',0,1,.005],['b2a','"Lens" in',0,1,.005],['b2b','"Lens" out',0,1,.005],['b3a','"Combustion" in',0,1,.005],['b3b','"Combustion" out',0,1,.005]]]];
 let showRead=1;
 function applyS(){showRead=S.readouts?1:0;hero.style.height=(S.heroLen+S.shutLen+100)+'vh';if(lenis){lenis.options.lerp=S.lerp;lenis.options.wheelMultiplier=S.wheel;}try{localStorage.setItem('sv-scroll-v4',JSON.stringify(S));}catch(e){}}
