@@ -356,7 +356,10 @@ function render(){
  requestAnimationFrame(render);
 }
 function introTitle(){for(const [i,s] of [...$('title').children].entries()){s.animate([{opacity:0,filter:'blur(28px)',transform:'translateY(.15em)'},{opacity:1,filter:'blur(0)',transform:'none'}],{duration:1400,delay:200+i*180,easing:'cubic-bezier(.2,.7,.2,1)',fill:'backwards'});}}
-function start(){$('pre').classList.add('done');document.fonts&&document.fonts.ready.then(fitTitle);const t0=performance.now();(function fi(){camIn=ease(clamp((performance.now()-t0-250)/S.camFade));if(camIn<1)requestAnimationFrame(fi);})();}
+function start(){$('pre').classList.add('done');document.fonts&&document.fonts.ready.then(fitTitle);const t0=performance.now();(function fi(){camIn=ease(clamp((performance.now()-t0-250)/S.camFade));if(camIn<1)requestAnimationFrame(fi);})();
+ /* portfolio embeds can open N mouse-wheel notches into the hero via ?wheels=N (100px × wheelMultiplier each) */
+ const wm=(/[?&]wheels=(\d+)\b/.exec(location.search)||[])[1];
+ if(wm){const y=(+wm)*100*(S.wheel||1);const go=()=>{if(lenis)lenis.scrollTo(y,{immediate:true});else scrollTo(0,y);};requestAnimationFrame(()=>requestAnimationFrame(go));}}
 // sections
 function secLayout(){const f=innerWidth/1920;for(const sec of document.querySelectorAll('.sec')){sec.style.height=(1080*f)+'px';sec.firstElementChild.style.transform=`scale(${f})`;}}
 // lightbox: the clicked picture expands out of its frame to fill the screen; click, Esc or scroll to close
